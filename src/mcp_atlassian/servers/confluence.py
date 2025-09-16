@@ -28,9 +28,7 @@ async def search(
         str,
         Field(
             description=(
-                "Search query - can be either a simple text (e.g. 'project documentation') or a CQL query string. "
-                "Simple queries use 'siteSearch' by default, to mimic the WebUI search, with an automatic fallback "
-                "to 'text' search if not supported. Examples of CQL:\n"
+                "The search query. For simple text searches, provide the text directly as the value for this 'query' parameter. For complex searches, provide a full CQL (Confluence Query Language) string. The tool automatically handles both cases. Examples of advanced CQL you can use:\n"
                 "- Basic search: 'type=page AND space=DEV'\n"
                 "- Personal space search: 'space=\"~username\"' (note: personal space keys starting with ~ must be quoted)\n"
                 "- Search by title: 'title~\"Meeting Notes\"'\n"
@@ -42,9 +40,9 @@ async def search(
                 "- Content modified this year: 'creator = currentUser() AND lastModified > startOfYear()'\n"
                 "- Content you contributed to recently: 'contributor = currentUser() AND lastModified > startOfWeek()'\n"
                 "- Content watched by user: 'watcher = \"user@domain.com\" AND type = page'\n"
-                '- Exact phrase in content: \'text ~ "\\"Urgent Review Required\\"" AND label = "pending-approval"\'\n'
-                '- Title wildcards: \'title ~ "Minutes*" AND (space = "HR" OR space = "Marketing")\'\n'
-                'Note: Special identifiers need proper quoting in CQL: personal space keys (e.g., "~username"), '
+                '- Exact phrase in content: \'text ~ \\\"Urgent Review Required\\\" AND label = \"pending-approval\"\'\n'
+                '- Title wildcards: \'title ~ \"Minutes*\" AND (space = \"HR\" OR space = \"Marketing\")\'\n'
+                'Note: Special identifiers need proper quoting in CQL: personal space keys (e.g., \"~username\"), ' 
                 "reserved words, numeric IDs, and identifiers with special characters."
             )
         ),
@@ -107,6 +105,9 @@ async def search(
             query, limit=limit, spaces_filter=spaces_filter
         )
     search_results = [page.to_simplified_dict() for page in pages]
+    if not search_results:
+        # Return a structured JSON indicating no results
+        return json.dumps({"results": [], "message": "No pages found matching the query."}, indent=2, ensure_ascii=False)
     return json.dumps(search_results, indent=2, ensure_ascii=False)
 
 
