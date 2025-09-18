@@ -1,4 +1,5 @@
 import os
+import sys
 from dotenv import load_dotenv
 from mcp_atlassian.confluence import ConfluenceFetcher
 from mcp_atlassian.confluence.config import ConfluenceConfig
@@ -6,6 +7,7 @@ from mcp_atlassian.confluence.config import ConfluenceConfig
 def main():
     """
     A simple script to test the Confluence search tool locally.
+    Accepts a CQL query as a command-line argument.
     """
     # Load environment variables from .env file
     dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
@@ -16,12 +18,14 @@ def main():
         print("Warning: .env file not found.")
 
     # --- Configuration ---
-    # You can change the CQL query to test different searches.
-    # Example: Search for pages with "test" in the title
-    # SEARCH_CQL = 'title ~ "BKC"'
-    # Example: Search for pages in a specific space
-    SEARCH_CQL = 'space = "CJT" and title ~ "smart"'
-   
+    if len(sys.argv) > 1:
+        SEARCH_CQL = sys.argv[1]
+        print(f"Using CQL from command-line argument.")
+    else:
+        # Default example query
+        SEARCH_CQL = 'space = "CJT" and title ~ "Test for dify and mcp"'
+        print("Using default CQL query. You can provide your own as an argument.")
+        print(f"Example: python {sys.argv[0]} 'space = \"MYSPACE\" and type = page'")
 
     print("--- Starting Confluence Search Tool Test ---")
 
